@@ -15,17 +15,17 @@
 #
 #
 # Phantom imports
-import time
-
 import phantom.app as phantom
-import requests
-# Global imports
-import simplejson as json
-from phantom.action_result import ActionResult
 from phantom.base_connector import BaseConnector
+from phantom.action_result import ActionResult
 
 # Local imports
 import phishtank_consts
+
+# Global imports
+import simplejson as json
+import requests
+import time
 
 
 class PhishtankConnector(BaseConnector):
@@ -177,7 +177,6 @@ class PhishtankConnector(BaseConnector):
 
 if __name__ == '__main__':
     import sys
-
     import pudb
     pudb.set_trace()
     if len(sys.argv) < 2:
