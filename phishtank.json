@@ -14,6 +14,7 @@
     "product_version_regex": ".*",
     "min_phantom_version": "4.10.0.40961",
     "python_version": "3",
+    "fips_compliant": true,
     "latest_tested_versions": [
         "Cloud, API: checkurl.phishtank.com/checkurl/, January 31 2020"
     ],
