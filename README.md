@@ -1,12 +1,12 @@
 [comment]: # "Auto-generated SOAR connector documentation"
 # PhishTank
 
-Publisher: Splunk
-Connector Version: 2\.1\.2
-Product Vendor: OpenDNS
-Product Name: PhishTank
-Product Version Supported (regex): "\.\*"
-Minimum Product Version: 5\.0\.0
+Publisher: Splunk  
+Connector Version: 2\.1\.2  
+Product Vendor: OpenDNS  
+Product Name: PhishTank  
+Product Version Supported (regex): "\.\*"  
+Minimum Product Version: 5\.0\.0  
 
 This app implements URL investigative capabilities utilizing PhishTank
 
@@ -42,26 +42,26 @@ VARIABLE | REQUIRED | TYPE | DESCRIPTION
 -------- | -------- | ---- | -----------
 **apikey** |  optional  | password | API key
 
-### Supported Actions
-[test connectivity](#action-test-connectivity) - Validates the connectivity by querying PhishTank
-[url reputation](#action-url-reputation) - Queries PhishTank for URL's phishing reputation
+### Supported Actions  
+[test connectivity](#action-test-connectivity) - Validates the connectivity by querying PhishTank  
+[url reputation](#action-url-reputation) - Queries PhishTank for URL's phishing reputation  
 
 ## action: 'test connectivity'
 Validates the connectivity by querying PhishTank
 
-Type: **test**
+Type: **test**  
 Read only: **True**
 
 #### Action Parameters
 No parameters are required for this action
 
 #### Action Output
-No Output
+No Output  
 
 ## action: 'url reputation'
 Queries PhishTank for URL's phishing reputation
 
-Type: **investigate**
+Type: **investigate**  
 Read only: **True**
 
 If URL information is unavailable in PhishTank, only 'url' and 'in\_database' property would be populated\.
@@ -69,23 +69,23 @@ If URL information is unavailable in PhishTank, only 'url' and 'in\_database' pr
 #### Action Parameters
 PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
 --------- | -------- | ----------- | ---- | --------
-**url** |  required  | URL to query for Phishing information | string |  `url`
+**url** |  required  | URL to query for Phishing information | string |  `url` 
 
 #### Action Output
 DATA PATH | TYPE | CONTAINS
 --------- | ---- | --------
-action\_result\.status | string |
-action\_result\.parameter\.url | string |  `url`
-action\_result\.data\.\*\.in\_database | boolean |
-action\_result\.data\.\*\.phish\_detail\_page | string |  `url`
-action\_result\.data\.\*\.phish\_id | string |
-action\_result\.data\.\*\.url | string |  `url`
-action\_result\.data\.\*\.valid | boolean |
-action\_result\.data\.\*\.verified | boolean |
-action\_result\.data\.\*\.verified\_at | string |
-action\_result\.summary\.In\_Database | boolean |
-action\_result\.summary\.Valid | boolean |
-action\_result\.summary\.Verified | boolean |
-action\_result\.message | string |
-summary\.total\_objects | numeric |
-summary\.total\_objects\_successful | numeric |
+action\_result\.status | string | 
+action\_result\.parameter\.url | string |  `url` 
+action\_result\.data\.\*\.in\_database | boolean | 
+action\_result\.data\.\*\.phish\_detail\_page | string |  `url` 
+action\_result\.data\.\*\.phish\_id | string | 
+action\_result\.data\.\*\.url | string |  `url` 
+action\_result\.data\.\*\.valid | boolean | 
+action\_result\.data\.\*\.verified | boolean | 
+action\_result\.data\.\*\.verified\_at | string | 
+action\_result\.summary\.In\_Database | boolean | 
+action\_result\.summary\.Valid | boolean | 
+action\_result\.summary\.Verified | boolean | 
+action\_result\.message | string | 
+summary\.total\_objects | numeric | 
+summary\.total\_objects\_successful | numeric | 
