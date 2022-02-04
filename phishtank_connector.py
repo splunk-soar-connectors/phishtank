@@ -58,7 +58,8 @@ class PhishtankConnector(BaseConnector):
                           'format': 'json'}
             response_code = requests.post(
                  phishtank_consts.PHISHTANK_API_DOMAIN,
-                 data=api_params).status_code
+                 data=api_params,
+                 timeout=phishtank_consts.DEFAULT_TIMEOUT).status_code
         except Exception as e:
             self.debug_print('test_asset_connectivity: ', e)
             self.set_status(
@@ -105,7 +106,8 @@ class PhishtankConnector(BaseConnector):
             try:
                 query_res = requests.post(phishtank_consts.
                                           PHISHTANK_API_DOMAIN,
-                                          data=api_params)
+                                          data=api_params,
+                                          timeout=phishtank_consts.DEFAULT_TIMEOUT)
             except Exception as e:
                 self.debug_print('check_url: ', e)
                 action_result.set_status(phantom.APP_ERROR,
