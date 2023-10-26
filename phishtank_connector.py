@@ -44,14 +44,15 @@ class PhishtankConnector(BaseConnector):
             "User-Agent": f"{'phishtank/'}{config.get('username', phishtank_consts.PHISHTANK_DEFAULT_USER)}"
         }
         return phantom.APP_SUCCESS
-    def _get_error_message_from_exception(self, e):
+
+    def _get_error_msg_from_exception(self, e):
         """ This method is used to get appropriate error message from the exception.
         :param e: Exception object
         :return: error message
         """
 
         error_code = None
-        error_message = phishtank_consts.PHISHTANK_ERROR_MESSAGE
+        error_msg = phishtank_consts.PHISHTANK_ERROR_MSG
 
         self.error_print("Error occurred.", e)
 
@@ -59,16 +60,16 @@ class PhishtankConnector(BaseConnector):
             if hasattr(e, "args"):
                 if len(e.args) > 1:
                     error_code = e.args[0]
-                    error_message = e.args[1]
+                    error_msg = e.args[1]
                 elif len(e.args) == 1:
-                    error_message = e.args[0]
+                    error_msg = e.args[0]
         except Exception as e:
             self.error_print("Error occurred while fetching exception information. Details: {}".format(str(e)))
 
         if not error_code:
-            error_text = "Error Message: {}".format(error_message)
+            error_text = "Error Message: {}".format(error_msg)
         else:
-            error_text = "Error Code: {}. Error Message: {}".format(error_code, error_message)
+            error_text = "Error Code: {}. Error Message: {}".format(error_code, error_msg)
 
         return error_text
 
@@ -92,13 +93,13 @@ class PhishtankConnector(BaseConnector):
             response_code = requests.post(phishtank_consts.PHISHTANK_API_DOMAIN, data=api_params,
                                           headers=self._headers, timeout=phishtank_consts.DEFAULT_TIMEOUT).status_code
         except Exception as e:
-            error_message = self._get_error_message_from_exception(e)
-            self.save_progress('test_asset_connectivity: ', error_message)
-            self.save_progress(phishtank_consts.PHISHTANK_ERR_CONNECTIVITY_TEST)
+            error_msg = self._get_error_msg_from_exception(e)
+            self.save_progress('test_asset_connectivity: ', error_msg)
+            self.save_progress(phishtank_consts.PHISHTANK_ERROR_CONNECTIVITY_TEST)
             return action_result.set_status(phantom.APP_ERROR)
 
         if response_code != 200:
-            self.save_progress(phishtank_consts.PHISHTANK_ERR_CONNECTIVITY_TEST)
+            self.save_progress(phishtank_consts.PHISHTANK_ERROR_CONNECTIVITY_TEST)
             self.save_progress(phishtank_consts.PHISHTANK_SERVER_RETURNED_ERROR_CODE.format(code=response_code))
             self.save_progress(phishtank_consts.PHISHTANK_MSG_CHECK_CONNECTIVITY)
             return action_result.set_status(phantom.APP_ERROR)
@@ -123,9 +124,9 @@ class PhishtankConnector(BaseConnector):
                                       headers=self._headers,
                                       timeout=phishtank_consts.DEFAULT_TIMEOUT)
         except Exception as e:
-            error_message = self._get_error_message_from_exception(e)
+            error_msg = self._get_error_msg_from_exception(e)
             return action_result.set_status(phantom.APP_ERROR, phishtank_consts.PHISHTANK_SERVER_CONNECTION_ERROR,
-                                            error_message)
+                                            error_msg)
 
         action_result.add_debug_data({'response_text': query_res.text if query_res else ''})
         self.debug_print('status_code', query_res.status_code)
@@ -143,15 +144,15 @@ class PhishtankConnector(BaseConnector):
         try:
             result = query_res.json()
         except Exception as e:
-            error_message = self._get_error_message_from_exception(e)
+            error_msg = self._get_error_msg_from_exception(e)
             return action_result.set_status(
                                      phantom.APP_ERROR,
-                                     error_message)
+                                     error_msg)
 
         if 'results' not in result:
             return action_result.set_status(
                 phantom.APP_ERROR,
-                phishtank_consts.PHISHTANK_ERR_MSG_OBJECT_QUERIED)
+                phishtank_consts.PHISHTANK_ERROR_MSG_OBJECT_QUERIED)
 
         status = result['results']
         action_result.append_to_message(phishtank_consts.PHISHTANK_SERVICE_SUCC_MSG)
