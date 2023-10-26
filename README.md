@@ -2,11 +2,11 @@
 # PhishTank
 
 Publisher: Splunk  
-Connector Version: 2\.1\.4  
+Connector Version: 3.0.0  
 Product Vendor: OpenDNS  
 Product Name: PhishTank  
-Product Version Supported (regex): "\.\*"  
-Minimum Product Version: 5\.1\.0  
+Product Version Supported (regex): ".\*"  
+Minimum Product Version: 6.1.0  
 
 This app implements URL investigative capabilities utilizing PhishTank
 
@@ -41,6 +41,7 @@ The below configuration variables are required for this Connector to operate.  T
 VARIABLE | REQUIRED | TYPE | DESCRIPTION
 -------- | -------- | ---- | -----------
 **apikey** |  optional  | password | API key
+**username** |  optional  | string | Username for passing in header as user-agent
 
 ### Supported Actions  
 [test connectivity](#action-test-connectivity) - Validates the connectivity by querying PhishTank  
@@ -64,7 +65,7 @@ Queries PhishTank for URL's phishing reputation
 Type: **investigate**  
 Read only: **True**
 
-If URL information is unavailable in PhishTank, only 'url' and 'in\_database' property would be populated\.
+If URL information is unavailable in PhishTank, only 'url' and 'in_database' property would be populated.
 
 #### Action Parameters
 PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
@@ -72,20 +73,20 @@ PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
 **url** |  required  | URL to query for Phishing information | string |  `url` 
 
 #### Action Output
-DATA PATH | TYPE | CONTAINS
---------- | ---- | --------
-action\_result\.status | string | 
-action\_result\.parameter\.url | string |  `url` 
-action\_result\.data\.\*\.in\_database | boolean | 
-action\_result\.data\.\*\.phish\_detail\_page | string |  `url` 
-action\_result\.data\.\*\.phish\_id | string | 
-action\_result\.data\.\*\.url | string |  `url` 
-action\_result\.data\.\*\.valid | boolean | 
-action\_result\.data\.\*\.verified | boolean | 
-action\_result\.data\.\*\.verified\_at | string | 
-action\_result\.summary\.In\_Database | boolean | 
-action\_result\.summary\.Valid | boolean | 
-action\_result\.summary\.Verified | boolean | 
-action\_result\.message | string | 
-summary\.total\_objects | numeric | 
-summary\.total\_objects\_successful | numeric | 
+DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES
+--------- | ---- | -------- | --------------
+action_result.status | string |  |   success  failed 
+action_result.parameter.url | string |  `url`  |   http://www.testurl.com 
+action_result.data.\*.in_database | boolean |  |   False  True 
+action_result.data.\*.phish_detail_page | string |  `url`  |   http://www.exampleurl.com/test_detail.php?phish_id=62001 
+action_result.data.\*.phish_id | string |  |   62771 
+action_result.data.\*.url | string |  `url`  |   http://www.testurl.com 
+action_result.data.\*.valid | boolean |  |   False  True 
+action_result.data.\*.verified | boolean |  |   False  True 
+action_result.data.\*.verified_at | string |  |   2006-09-01T02:32:23+00:00 
+action_result.summary.In_Database | boolean |  |   False  True 
+action_result.summary.Valid | boolean |  |   False  True 
+action_result.summary.Verified | boolean |  |   False  True 
+action_result.message | string |  |   In database: True, Verified: False, Valid: False 
+summary.total_objects | numeric |  |   1 
+summary.total_objects_successful | numeric |  |   1 
