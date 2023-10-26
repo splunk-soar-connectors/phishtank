@@ -1,6 +1,6 @@
 # File: phishtank_connector.py
 #
-# Copyright (c) 2016-2022 Splunk Inc.
+# Copyright (c) 2016-2023 Splunk Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 #
 #
 # Phantom imports
+import sys
 import time
 
 import phantom.app as phantom
@@ -32,7 +33,44 @@ class PhishtankConnector(BaseConnector):
     ACTION_ID_WHOIS_DOMAIN = 'check_url'
 
     def __init__(self):
+        self._api_key = None
+        self._headers = None
         super(PhishtankConnector, self).__init__()
+
+    def initialize(self):
+        config = self.get_config()
+        self._api_key = config.get('apikey', None)
+        self._headers = {
+            "User-Agent": f"{'phishtank/'}{config.get('username', phishtank_consts.PHISHTANK_DEFAULT_USER)}"
+        }
+        return phantom.APP_SUCCESS
+    def _get_error_message_from_exception(self, e):
+        """ This method is used to get appropriate error message from the exception.
+        :param e: Exception object
+        :return: error message
+        """
+
+        error_code = None
+        error_message = phishtank_consts.PHISHTANK_ERROR_MESSAGE
+
+        self.error_print("Error occurred.", e)
+
+        try:
+            if hasattr(e, "args"):
+                if len(e.args) > 1:
+                    error_code = e.args[0]
+                    error_message = e.args[1]
+                elif len(e.args) == 1:
+                    error_message = e.args[0]
+        except Exception as e:
+            self.error_print("Error occurred while fetching exception information. Details: {}".format(str(e)))
+
+        if not error_code:
+            error_text = "Error Message: {}".format(error_message)
+        else:
+            error_text = "Error Code: {}. Error Message: {}".format(error_code, error_message)
+
+        return error_text
 
     def handle_action(self, param):
         result = None
@@ -44,153 +82,173 @@ class PhishtankConnector(BaseConnector):
         return result
 
     def test_asset_connectivity(self, param):
-        config = self.get_config()
-        app_key = config.get('apikey', None)
+        action_result = self.add_action_result(ActionResult(dict(param)))
         self.save_progress(phishtank_consts.PHISHTANK_MSG_CONNECTING)
+        api_params = {'url': 'https://www.google.com', 'format': 'json'}
+        if self._api_key:
+            api_params[phishtank_consts.PHISHTANK_APP_KEY] = self._api_key
         time.sleep(10)
         try:
-            if app_key:
-                api_params = {'url': 'https://www.google.com',
-                          'format': 'json',
-                          phishtank_consts.PHISHTANK_APP_KEY: app_key}
-            else:
-                api_params = {'url': 'https://www.google.com',
-                          'format': 'json'}
-            response_code = requests.post(
-                 phishtank_consts.PHISHTANK_API_DOMAIN,
-                 data=api_params,
-                 timeout=phishtank_consts.DEFAULT_TIMEOUT).status_code
+            response_code = requests.post(phishtank_consts.PHISHTANK_API_DOMAIN, data=api_params,
+                                          headers=self._headers, timeout=phishtank_consts.DEFAULT_TIMEOUT).status_code
         except Exception as e:
-            self.debug_print('test_asset_connectivity: ', e)
-            self.set_status(
-                 phantom.APP_ERROR,
-                 phishtank_consts.PHISHTANK_ERR_CONNECTIVITY_TEST, e)
-            self.append_to_message(
-                 phishtank_consts.PHISHTANK_MSG_CHECK_CONNECTIVITY)
-            return self.get_status()
+            error_message = self._get_error_message_from_exception(e)
+            self.save_progress('test_asset_connectivity: ', error_message)
+            self.save_progress(phishtank_consts.PHISHTANK_ERR_CONNECTIVITY_TEST)
+            return action_result.set_status(phantom.APP_ERROR)
 
-        if response_code == 200:
-            return self.set_status_save_progress(
-                 phantom.APP_SUCCESS,
-                 phishtank_consts.PHISHTANK_SUCC_CONNECTIVITY_TEST)
-        else:
-            self.set_status(phantom.APP_ERROR,
-                            phishtank_consts.
-                            PHISHTANK_SERVER_RETURNED_ERROR_CODE.
-                            format(code=response_code))
-            self.append_to_message(
-                 phishtank_consts.PHISHTANK_MSG_CHECK_CONNECTIVITY)
-            return self.get_status()
+        if response_code != 200:
+            self.save_progress(phishtank_consts.PHISHTANK_ERR_CONNECTIVITY_TEST)
+            self.save_progress(phishtank_consts.PHISHTANK_SERVER_RETURNED_ERROR_CODE.format(code=response_code))
+            self.save_progress(phishtank_consts.PHISHTANK_MSG_CHECK_CONNECTIVITY)
+            return action_result.set_status(phantom.APP_ERROR)
+
+        self.save_progress(phishtank_consts.PHISHTANK_SUCC_CONNECTIVITY_TEST)
+        return action_result.set_status(phantom.APP_SUCCESS)
 
     def check_url(self, param):
-        config = self.get_config()
-        app_key = config.get('apikey', None)
         action_result = self.add_action_result(ActionResult(dict(param)))
         summary = action_result.update_summary({})
-        if param is None or param['url'] is None:
-            self.debug_print('Mandatory action parameters missing')
-            action_result.set_status(phantom.APP_ERROR,
+
+        api_params = {'url': param['url'], 'format': 'json'}
+        if self._api_key:
+            api_params[phishtank_consts.PHISHTANK_APP_KEY] = self._api_key
+
+        self.save_progress(phishtank_consts.PHISHTANK_MSG_QUERY_URL,
+                           query_url=param['url'])
+        try:
+            query_res = requests.post(phishtank_consts.
+                                      PHISHTANK_API_DOMAIN,
+                                      data=api_params,
+                                      headers=self._headers,
+                                      timeout=phishtank_consts.DEFAULT_TIMEOUT)
+        except Exception as e:
+            error_message = self._get_error_message_from_exception(e)
+            return action_result.set_status(phantom.APP_ERROR, phishtank_consts.PHISHTANK_SERVER_CONNECTION_ERROR,
+                                            error_message)
+
+        action_result.add_debug_data({'response_text': query_res.text if query_res else ''})
+        self.debug_print('status_code', query_res.status_code)
+        if query_res.status_code in [509, 429]:
+            return action_result.set_status(
+                                     phantom.APP_ERROR,
                                      phishtank_consts.
-                                     PHISHTANK_ERR_MSG_ACTION_PARAM)
+                                     PHISHTANK_SERVER_ERROR_RATE_LIMIT.format(str(query_res.status_code)))
+        if query_res.status_code != 200:
+            return action_result.set_status(
+                                     phantom.APP_ERROR,
+                                     phishtank_consts.
+                                     PHISHTANK_SERVER_RETURNED_ERROR_CODE.
+                                     format(code=query_res.status_code))
+        try:
+            result = query_res.json()
+        except Exception as e:
+            error_message = self._get_error_message_from_exception(e)
+            return action_result.set_status(
+                                     phantom.APP_ERROR,
+                                     error_message)
+
+        if 'results' not in result:
+            return action_result.set_status(
+                phantom.APP_ERROR,
+                phishtank_consts.PHISHTANK_ERR_MSG_OBJECT_QUERIED)
+
+        status = result['results']
+        action_result.append_to_message(phishtank_consts.PHISHTANK_SERVICE_SUCC_MSG)
+        try:
+            status_summary = {}
+            if status['in_database'] is True:
+                status_summary['Verified'] = status["verified"]
+                status_summary['In_Database'] = status["in_database"]
+                status_summary['Valid'] = status["valid"]
+            else:
+                if 'phish_detail_page' not in list(status.keys()):
+                    status["phish_detail_page"] = None
+                if 'verified_at' not in list(status.keys()):
+                    status["verified_at"] = None
+                if 'phish_id' not in list(status.keys()):
+                    status["phish_id"] = None
+                if 'valid' not in list(status.keys()):
+                    status["valid"] = None
+                if 'verified' not in list(status.keys()):
+                    status["verified"] = None
+
+                status_summary['Verified'] = status["verified"]
+                status_summary['In_Database'] = status["in_database"]
+                status_summary['Valid'] = status["valid"]
+            summary.update(status_summary)
+        except Exception as e:
+            action_result.set_status(phantom.APP_ERROR, 'Error populating summary', e)
             return action_result.get_status()
-        else:
-            if app_key:
-                api_params = {'url': param['url'],
-                          'format': 'json',
-                          phishtank_consts.PHISHTANK_APP_KEY: app_key}
-            else:
-                api_params = {'url': param['url'],
-                          'format': 'json'}
-            self.save_progress(phishtank_consts.PHISHTANK_MSG_QUERY_URL,
-                               query_url=param['url'])
-            try:
-                query_res = requests.post(phishtank_consts.
-                                          PHISHTANK_API_DOMAIN,
-                                          data=api_params,
-                                          timeout=phishtank_consts.DEFAULT_TIMEOUT)
-            except Exception as e:
-                self.debug_print('check_url: ', e)
-                action_result.set_status(phantom.APP_ERROR,
-                                         phishtank_consts.
-                                         PHISHTANK_SERVER_CONNECTION_ERROR, e)
-                return action_result.get_status()
 
-            action_result.add_debug_data({'response_text': query_res.text
-                                          if query_res else ''})
-            self.debug_print('status_code', query_res.status_code)
-            if query_res.status_code == 509:
-                return action_result.set_status(
-                                         phantom.APP_ERROR,
-                                         phishtank_consts.
-                                         PHISHTANK_SERVER_ERROR_RATE_LIMIT)
-            if query_res.status_code != 200:
-                return action_result.set_status(
-                                         phantom.APP_ERROR,
-                                         phishtank_consts.
-                                         PHISHTANK_SERVER_RETURNED_ERROR_CODE.
-                                         format(code=query_res.status_code))
-            try:
-                result = query_res.json()
-            except Exception as e:
-                self.debug_print('Response from server not a valid JSON', e)
-                return action_result.set_status(
-                                         phantom.APP_ERROR,
-                                         'Response from server not' + ' a valid JSON')
-
-            if 'results' in result:
-                status = result['results']
-                action_result.append_to_message(
-                    phishtank_consts.PHISHTANK_SERVICE_SUCC_MSG)
-            else:
-                action_result.set_status(
-                    phantom.APP_ERROR,
-                    phishtank_consts.PHISHTANK_ERR_MSG_OBJECT_QUERIED)
-                return action_result.get_status()
-            try:
-                status_summary = {}
-                if status['in_database'] is True:
-                    status_summary['Verified'] = status["verified"]
-                    status_summary['In_Database'] = status["in_database"]
-                    status_summary['Valid'] = status["valid"]
-                else:
-                    if 'phish_detail_page' not in list(status.keys()):
-                        status["phish_detail_page"] = None
-                    if 'verified_at' not in list(status.keys()):
-                        status["verified_at"] = None
-                    if 'phish_id' not in list(status.keys()):
-                        status["phish_id"] = None
-                    if 'valid' not in list(status.keys()):
-                        status["valid"] = None
-                    if 'verified' not in list(status.keys()):
-                        status["verified"] = None
-
-                    status_summary['Verified'] = status["verified"]
-                    status_summary['In_Database'] = status["in_database"]
-                    status_summary['Valid'] = status["valid"]
-                summary.update(status_summary)
-            except Exception as e:
-                action_result.set_status(phantom.APP_ERROR, 'Error populating summary', e)
-                return action_result.get_status()
-
-            action_result.add_data(status)
-            action_result.set_status(phantom.APP_SUCCESS)
-            return phantom.APP_SUCCESS
+        action_result.add_data(status)
+        return action_result.set_status(phantom.APP_SUCCESS)
 
 
 if __name__ == '__main__':
-    import sys
+    import argparse
 
     import pudb
+
     pudb.set_trace()
-    if len(sys.argv) < 2:
-        print('No test json specified as input')
-        sys.exit()
-    with open(sys.argv[1]) as f:
+
+    argparser = argparse.ArgumentParser()
+
+    argparser.add_argument('input_test_json', help='Input Test JSON file')
+    argparser.add_argument('-u', '--username', help='username', required=False)
+    argparser.add_argument('-p', '--password', help='password', required=False)
+    argparser.add_argument('-v', '--verify', action='store_true', help='verify', required=False, default=False)
+
+    args = argparser.parse_args()
+    session_id = None
+
+    username = args.username
+    password = args.password
+    verify = args.verify
+
+    if username is not None and password is None:
+        # User specified a username but not a password, so ask
+        import getpass
+
+        password = getpass.getpass("Password: ")
+
+    if username and password:
+        login_url = BaseConnector._get_phantom_base_url() + "login"
+        try:
+            print("Accessing the Login page")
+            r = requests.get(login_url, verify=verify, timeout=phishtank_consts.DEFAULT_TIMEOUT)
+            csrftoken = r.cookies['csrftoken']
+
+            data = dict()
+            data['username'] = username
+            data['password'] = password
+            data['csrfmiddlewaretoken'] = csrftoken
+
+            headers = dict()
+            headers['Cookie'] = 'csrftoken=' + csrftoken
+            headers['Referer'] = login_url
+
+            print("Logging into Platform to get the session id")
+            r2 = requests.post(login_url, verify=verify, data=data, headers=headers,
+                               timeout=phishtank_consts.DEFAULT_TIMEOUT)
+            session_id = r2.cookies['sessionid']
+        except Exception as e:
+            print("Unable to get session id from the platform. Error: " + str(e))
+            sys.exit(1)
+
+    with open(args.input_test_json) as f:
         in_json = f.read()
         in_json = json.loads(in_json)
         print(json.dumps(in_json, indent=4))
+
         connector = PhishtankConnector()
         connector.print_progress_message = True
+
+        if session_id is not None:
+            in_json['user_session_token'] = session_id
+            connector._set_csrf_info(csrftoken, headers['Referer'])
+
         ret_val = connector._handle_action(json.dumps(in_json), None)
         print(json.dumps(json.loads(ret_val), indent=4))
-    sys.exit()
+
+    sys.exit(0)

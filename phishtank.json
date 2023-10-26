@@ -5,18 +5,18 @@
     "publisher": "Splunk",
     "package_name": "phantom_phishtank",
     "type": "investigative",
-    "license": "Copyright (c) 2016-2022 Splunk Inc.",
+    "license": "Copyright (c) 2016-2023 Splunk Inc.",
     "main_module": "phishtank_connector.py",
-    "app_version": "2.1.4",
+    "app_version": "3.0.0",
     "utctime_updated": "2022-02-04T02:58:14.000000Z",
     "product_vendor": "OpenDNS",
     "product_name": "PhishTank",
     "product_version_regex": ".*",
-    "min_phantom_version": "5.1.0",
+    "min_phantom_version": "6.1.0",
     "python_version": "3",
     "fips_compliant": true,
     "latest_tested_versions": [
-        "Cloud, API: checkurl.phishtank.com/checkurl/, January 31 2020"
+        "Cloud, API: checkurl.phishtank.com/checkurl/, October 26 2023"
     ],
     "logo": "logo_phishtank.svg",
     "logo_dark": "logo_phishtank_dark.svg",
@@ -25,6 +25,12 @@
             "data_type": "password",
             "description": "API key",
             "order": 0
+        },
+        "username": {
+            "data_type": "string",
+            "description": "Username for passing in header as user-agent",
+            "default": "phishtank_user",
+            "order": 1
         }
     },
     "actions": [
@@ -80,7 +86,7 @@
                         "url"
                     ],
                     "example_values": [
-                        "http://www.splunk.com"
+                        "http://www.testurl.com"
                     ]
                 },
                 {
@@ -99,7 +105,7 @@
                     "data_path": "action_result.data.*.phish_detail_page",
                     "data_type": "string",
                     "example_values": [
-                        "http://www.phishtank.com/phish_detail.php?phish_id=62001"
+                        "http://www.exampleurl.com/test_detail.php?phish_id=62001"
                     ],
                     "contains": [
                         "url"
@@ -123,7 +129,7 @@
                         "url"
                     ],
                     "example_values": [
-                        "http://www.splunk.com"
+                        "http://www.testurl.com"
                     ]
                 },
                 {
