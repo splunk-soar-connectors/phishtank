@@ -98,7 +98,7 @@ class PhishtankConnector(BaseConnector):
             self.save_progress(phishtank_consts.PHISHTANK_ERROR_CONNECTIVITY_TEST)
             return action_result.set_status(phantom.APP_ERROR)
 
-        if 200 <= response_code < 399:
+        if not (200 <= response_code < 399):
             self.save_progress(phishtank_consts.PHISHTANK_ERROR_CONNECTIVITY_TEST)
             self.save_progress(phishtank_consts.PHISHTANK_SERVER_RETURNED_ERROR_CODE.format(code=response_code))
             self.save_progress(phishtank_consts.PHISHTANK_MSG_CHECK_CONNECTIVITY)
@@ -135,7 +135,7 @@ class PhishtankConnector(BaseConnector):
                                      phantom.APP_ERROR,
                                      phishtank_consts.
                                      PHISHTANK_SERVER_ERROR_RATE_LIMIT.format(str(query_res.status_code)))
-        if 200 <= query_res.status_code < 399:
+        if not (200 <= query_res.status_code < 399):
             return action_result.set_status(
                                      phantom.APP_ERROR,
                                      phishtank_consts.
