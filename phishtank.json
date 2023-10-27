@@ -26,10 +26,10 @@
             "description": "API key",
             "order": 0
         },
-        "username": {
+        "user_agent": {
             "data_type": "string",
-            "description": "Username for passing in header as user-agent",
-            "default": "phishtank_user",
+            "description": "User-Agent header to pass in the request e.g. (phishtank/[user_agent])  (Default: splunk_soar_user)",
+            "default": "splunk_soar_user",
             "order": 1
         }
     },

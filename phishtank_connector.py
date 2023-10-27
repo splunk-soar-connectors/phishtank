@@ -41,7 +41,7 @@ class PhishtankConnector(BaseConnector):
         config = self.get_config()
         self._api_key = config.get('apikey', None)
         self._headers = {
-            "User-Agent": f"{'phishtank/'}{config.get('username', phishtank_consts.PHISHTANK_DEFAULT_USER)}"
+            "User-Agent": f"{'phishtank/'}{config.get('user_agent', phishtank_consts.PHISHTANK_DEFAULT_USER)}"
         }
         return phantom.APP_SUCCESS
 
