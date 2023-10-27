@@ -24,6 +24,12 @@ This app implements URL investigative capabilities utilizing PhishTank
 [comment]: # "either express or implied. See the License for the specific language governing permissions"
 [comment]: # "and limitations under the License."
 [comment]: # ""
+
+## Configuration Parameter Information
+For **User-Agent** parameter, We will add prefix value **'phishtank/'** along with value provided in the parameter during action execution.  
+For Example, If User-Agent value is 'test_user' then 'phishtank/test_user' will be passed in the to run the action.
+
+
 ## Port Information
 
 The app uses HTTP/ HTTPS protocol for communicating with the PhishTank server. Below are the default
@@ -41,7 +47,7 @@ The below configuration variables are required for this Connector to operate.  T
 VARIABLE | REQUIRED | TYPE | DESCRIPTION
 -------- | -------- | ---- | -----------
 **apikey** |  optional  | password | API key
-**user_agent** |  optional  | string | User-Agent header to pass in the request e.g. (phishtank/[user_agent])  (Default: splunk_soar_user)
+**user_agent** |  optional  | string | User-Agent header to pass in the request (Default: splunk_soar_user)
 
 ### Supported Actions  
 [test connectivity](#action-test-connectivity) - Validates the connectivity by querying PhishTank  
