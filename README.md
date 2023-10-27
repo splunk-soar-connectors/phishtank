@@ -41,7 +41,7 @@ The below configuration variables are required for this Connector to operate.  T
 VARIABLE | REQUIRED | TYPE | DESCRIPTION
 -------- | -------- | ---- | -----------
 **apikey** |  optional  | password | API key
-**username** |  optional  | string | Username for passing in header as user-agent
+**user_agent** |  optional  | string | User-Agent header to pass in the request e.g. (phishtank/[user_agent])  (Default: splunk_soar_user)
 
 ### Supported Actions  
 [test connectivity](#action-test-connectivity) - Validates the connectivity by querying PhishTank  
