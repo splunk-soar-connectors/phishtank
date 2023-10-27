@@ -135,7 +135,7 @@ class PhishtankConnector(BaseConnector):
                                      phantom.APP_ERROR,
                                      phishtank_consts.
                                      PHISHTANK_SERVER_ERROR_RATE_LIMIT.format(str(query_res.status_code)))
-        if query_res.status_code != 200:
+        if 200 <= query_res.status_code < 399:
             return action_result.set_status(
                                      phantom.APP_ERROR,
                                      phishtank_consts.
@@ -179,8 +179,8 @@ class PhishtankConnector(BaseConnector):
                 status_summary['Valid'] = status["valid"]
             summary.update(status_summary)
         except Exception as e:
-            action_result.set_status(phantom.APP_ERROR, 'Error populating summary', e)
-            return action_result.get_status()
+            error_msg = self._get_error_msg_from_exception(e)
+            return action_result.set_status(phantom.APP_ERROR, 'Error populating summary, Error: {}'.format(error_msg))
 
         action_result.add_data(status)
         return action_result.set_status(phantom.APP_SUCCESS)
