@@ -5,7 +5,7 @@
     "publisher": "Splunk",
     "package_name": "phantom_phishtank",
     "type": "investigative",
-    "license": "Copyright (c) 2016-2023 Splunk Inc.",
+    "license": "Copyright (c) 2016-2025 Splunk Inc.",
     "main_module": "phishtank_connector.py",
     "app_version": "3.0.0",
     "utctime_updated": "2022-02-04T02:58:14.000000Z",
