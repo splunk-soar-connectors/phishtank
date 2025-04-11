@@ -1,7 +1,7 @@
 # PhishTank
 
 Publisher: Splunk \
-Connector Version: 3.0.0 \
+Connector Version: 3.0.1 \
 Product Vendor: OpenDNS \
 Product Name: PhishTank \
 Minimum Product Version: 6.1.0
