@@ -1,9 +1,9 @@
 # PhishTank
 
-Publisher: Splunk \
-Connector Version: 3.0.3 \
-Product Vendor: OpenDNS \
-Product Name: PhishTank \
+Publisher: Splunk <br>
+Connector Version: 3.0.3 <br>
+Product Vendor: OpenDNS <br>
+Product Name: PhishTank <br>
 Minimum Product Version: 6.1.0
 
 This app implements URL investigative capabilities utilizing PhishTank
@@ -34,14 +34,14 @@ VARIABLE | REQUIRED | TYPE | DESCRIPTION
 
 ### Supported Actions
 
-[test connectivity](#action-test-connectivity) - Validates the connectivity by querying PhishTank \
+[test connectivity](#action-test-connectivity) - Validates the connectivity by querying PhishTank <br>
 [url reputation](#action-url-reputation) - Queries PhishTank for URL's phishing reputation
 
 ## action: 'test connectivity'
 
 Validates the connectivity by querying PhishTank
 
-Type: **test** \
+Type: **test** <br>
 Read only: **True**
 
 #### Action Parameters
@@ -56,7 +56,7 @@ No Output
 
 Queries PhishTank for URL's phishing reputation
 
-Type: **investigate** \
+Type: **investigate** <br>
 Read only: **True**
 
 If URL information is unavailable in PhishTank, only 'url' and 'in_database' property would be populated.
