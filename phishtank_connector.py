@@ -149,6 +149,9 @@ class PhishtankConnector(BaseConnector):
             error_msg = self._get_error_msg_from_exception(e)
             return action_result.set_status(phantom.APP_ERROR, error_msg)
 
+        if not isinstance(result, dict):
+            return action_result.set_status(phantom.APP_ERROR, phishtank_consts.PHISHTANK_ERROR_MSG_OBJECT_QUERIED)
+
         if "results" not in result:
             return action_result.set_status(phantom.APP_ERROR, phishtank_consts.PHISHTANK_ERROR_MSG_OBJECT_QUERIED)
 
