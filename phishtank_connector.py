@@ -1,6 +1,6 @@
 # File: phishtank_connector.py
 #
-# Copyright (c) 2016-2025 Splunk Inc.
+# Copyright (c) 2016-2026 Splunk Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 #
 #
 # Phantom imports
+import re
 import sys
 import time
 
@@ -111,11 +112,19 @@ class PhishtankConnector(BaseConnector):
         action_result = self.add_action_result(ActionResult(dict(param)))
         summary = action_result.update_summary({})
 
-        api_params = {"url": param["url"], "format": "json"}
+        query_url = re.sub(
+            r"^hxxp(s?)://",
+            lambda match: f"http{'s' if match.group(1) else ''}://",
+            param["url"],
+            flags=re.IGNORECASE,
+        )
+        query_url = re.sub(r"\[\.\]|\(\.\)|\{\.\}", ".", query_url)
+
+        api_params = {"url": query_url, "format": "json"}
         if self._api_key:
             api_params[phishtank_consts.PHISHTANK_APP_KEY] = self._api_key
 
-        self.save_progress(phishtank_consts.PHISHTANK_MSG_QUERY_URL, query_url=param["url"])
+        self.save_progress(phishtank_consts.PHISHTANK_MSG_QUERY_URL, query_url=query_url)
         try:
             query_res = requests.post(
                 phishtank_consts.PHISHTANK_API_DOMAIN, data=api_params, headers=self._headers, timeout=phishtank_consts.DEFAULT_TIMEOUT
@@ -139,6 +148,9 @@ class PhishtankConnector(BaseConnector):
         except Exception as e:
             error_msg = self._get_error_msg_from_exception(e)
             return action_result.set_status(phantom.APP_ERROR, error_msg)
+
+        if not isinstance(result, dict):
+            return action_result.set_status(phantom.APP_ERROR, phishtank_consts.PHISHTANK_ERROR_MSG_OBJECT_QUERIED)
 
         if "results" not in result:
             return action_result.set_status(phantom.APP_ERROR, phishtank_consts.PHISHTANK_ERROR_MSG_OBJECT_QUERIED)
