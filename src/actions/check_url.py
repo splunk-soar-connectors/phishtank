@@ -14,6 +14,7 @@
 #
 import re
 
+from pydantic import ConfigDict
 from soar_sdk.abstract import SOARClient
 from soar_sdk.action_results import ActionOutput, OutputField
 from soar_sdk.logging import getLogger
@@ -36,6 +37,9 @@ class UrlReputationParams(Params):
 
 
 class UrlReputationOutput(ActionOutput):
+    # Legacy actions returned the complete API result, including undeclared fields.
+    model_config = ConfigDict(extra="allow")
+
     url: str | None = OutputField(
         column_name="URL",
         cef_types=["url"],

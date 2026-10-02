@@ -69,6 +69,32 @@ def test_known_url(response):
 
 
 @pytest.mark.parametrize(
+    "extra_fields",
+    [
+        {"submitted_at": "2006-10-01T02:28:46+00:00"},
+        {"extra_details": {"source": "api", "count": 2}},
+        {"extra_labels": ["reported", "verified"]},
+    ],
+)
+def test_serialized_output_preserves_extra_api_fields(response, extra_fields):
+    result = {
+        "url": "https://example.com",
+        "in_database": True,
+        "valid": True,
+        "verified": True,
+        "phish_id": "62771",
+        "phish_detail_page": "https://example.com/detail",
+        "verified_at": "2006-10-01T02:28:46+00:00",
+        **extra_fields,
+    }
+    response.json.return_value = {"results": result}
+    output = check_url(UrlReputationParams(url=result["url"]), Mock(), Asset())
+    # SOAR serializes action data with model_dump(by_alias=True).
+    assert output.model_dump(by_alias=True) == result
+    assert output.model_dump(mode="json", by_alias=True) == result
+
+
+@pytest.mark.parametrize(
     "url", ["hxxps://example[.]com", "HXXPS://example(.)com", "https://example{.}com"]
 )
 def test_defanged_url_and_auth(response, url):

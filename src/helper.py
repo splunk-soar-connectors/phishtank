@@ -26,6 +26,8 @@ logger = getLogger()
 
 
 def make_request(asset: "Asset", url: str):
+    # soarapps imports this module in its own environment to generate the manifest;
+    # load the app's runtime dependencies only when executing a request.
     import requests  # noqa: PLC0415
 
     data = {"url": url, "format": "json"}
