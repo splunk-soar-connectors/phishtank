@@ -1,5 +1,3 @@
-# File: __init__.py
-#
 # Copyright (c) 2016-2026 Splunk Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,3 +10,10 @@
 # the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 # either express or implied. See the License for the specific language governing permissions
 # and limitations under the License.
+#
+#
+API_URL = "https://checkurl.phishtank.com/checkurl/"
+DEFAULT_TIMEOUT = 30
+DEFAULT_USER_AGENT = "splunk_soar_user"
+SUCCESS_MESSAGE = "Phishtank Service successfully executed."
+INVALID_RESPONSE_MESSAGE = "Phishtank response didn't send expected response"
