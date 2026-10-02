@@ -19,7 +19,7 @@ import pytest
 import requests
 from soar_sdk.exceptions import ActionFailure
 
-from src.actions.check_url import UrlReputationParams, check_url
+from src.actions.check_url import UrlReputationOutput, UrlReputationParams, check_url
 from src.app import Asset
 from src.app import test_connectivity as connectivity
 from src.helper import query_url
@@ -48,6 +48,20 @@ def test_unknown_url(response):
     assert output.phish_id is None
     summary = soar.set_summary.call_args.args[0].model_dump(by_alias=True)
     assert summary == {"In_Database": False, "Valid": None, "Verified": None}
+
+
+def test_output_preserves_unexpected_declared_field_type():
+    result = {
+        "url": "https://example.com",
+        "in_database": False,
+        "valid": "unknown",
+        "verified": None,
+        "phish_id": None,
+        "phish_detail_page": None,
+        "verified_at": None,
+    }
+    output = UrlReputationOutput(**result)
+    assert output.model_dump(by_alias=True) == result
 
 
 def test_known_url(response):
