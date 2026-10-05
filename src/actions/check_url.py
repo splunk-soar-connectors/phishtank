@@ -15,7 +15,7 @@
 import re
 
 from soar_sdk.abstract import SOARClient
-from soar_sdk.action_results import ActionOutput, OutputField, PermissiveActionOutput
+from soar_sdk.action_results import OutputField, PermissiveActionOutput
 from soar_sdk.logging import getLogger
 from soar_sdk.params import Param, Params
 
@@ -58,7 +58,7 @@ class UrlReputationOutput(PermissiveActionOutput):
     verified_at: str | None = OutputField(example_values=["2006-09-01T02:32:23+00:00"])
 
 
-class UrlReputationSummary(ActionOutput):
+class UrlReputationSummary(PermissiveActionOutput):
     in_database: bool = OutputField(alias="In_Database", example_values=[False, True])
     valid: bool | None = OutputField(alias="Valid", example_values=[False, True])
     verified: bool | None = OutputField(alias="Verified", example_values=[False, True])
@@ -86,10 +86,23 @@ def check_url(
     normalized_url = re.sub(r"\[\.\]|\(\.\)|\{\.\}", ".", normalized_url)
     logger.info("Querying URL: %s", normalized_url)
     result = query_url(asset, normalized_url)
+    # Preserve the legacy unknown-URL result shape, including explicit nulls.
+    if result["in_database"] is False:
+        result = dict(result)
+        for field in (
+            "phish_detail_page",
+            "verified_at",
+            "phish_id",
+            "valid",
+            "verified",
+        ):
+            result.setdefault(field, None)
     output = UrlReputationOutput(**result)
     soar.set_summary(
         UrlReputationSummary(
-            in_database=output.in_database, valid=output.valid, verified=output.verified
+            In_Database=result["in_database"],
+            Valid=result.get("valid"),
+            Verified=result.get("verified"),
         )
     )
     soar.set_message(SUCCESS_MESSAGE)

@@ -47,6 +47,15 @@ def test_unknown_url(response):
     assert output.valid is None
     assert output.verified is None
     assert output.phish_id is None
+    assert output.model_dump(by_alias=True) == {
+        "url": "https://example.com",
+        "in_database": False,
+        "phish_detail_page": None,
+        "verified_at": None,
+        "phish_id": None,
+        "valid": None,
+        "verified": None,
+    }
     summary = soar.set_summary.call_args.args[0].model_dump(by_alias=True)
     assert summary == {"In_Database": False, "Valid": None, "Verified": None}
 
@@ -63,6 +72,27 @@ def test_output_preserves_unexpected_declared_field_type():
     }
     output = UrlReputationOutput(**result)
     assert output.model_dump(by_alias=True) == result
+
+
+@pytest.mark.parametrize("value", ["y", "n", "unknown"])
+def test_action_preserves_raw_flags_in_data_and_summary(response, value):
+    response.json.return_value = {
+        "results": {
+            "url": "https://example.com",
+            "in_database": True,
+            "valid": value,
+            "verified": value,
+        }
+    }
+    soar = Mock()
+    output = check_url(UrlReputationParams(url="https://example.com"), soar, Asset())
+    assert output.model_dump()["valid"] == value
+    assert output.model_dump()["verified"] == value
+    assert soar.set_summary.call_args.args[0].model_dump(by_alias=True) == {
+        "In_Database": True,
+        "Valid": value,
+        "Verified": value,
+    }
 
 
 def test_known_url(response):
