@@ -83,7 +83,7 @@ action_result.message | string | | |
 action_result.parameter.url | string | `url` | |
 action_result.data.\*.url | string | `url` | http://www.testurl.com |
 action_result.data.\*.valid | boolean | | True False |
-action_result.data.\*.phish_id | string | | 62771 |
+action_result.data.\*.phish_id | numeric | | 62771 |
 action_result.data.\*.in_database | boolean | | True False |
 action_result.data.\*.verified | boolean | | True False |
 action_result.data.\*.phish_detail_page | string | `url` | http://www.exampleurl.com/test_detail.php?phish_id=62001 |

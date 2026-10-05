@@ -77,7 +77,8 @@ def test_known_url(response):
         }
     }
     output = check_url(UrlReputationParams(url="https://example.com"), Mock(), Asset())
-    assert output.phish_id == "62771"
+    assert output.phish_id == 62771
+    assert output.model_dump(by_alias=True)["phish_id"] == 62771
     assert output.valid is True
     assert output.verified is False
 
@@ -96,7 +97,7 @@ def test_serialized_output_preserves_extra_api_fields(response, extra_fields):
         "in_database": True,
         "valid": True,
         "verified": True,
-        "phish_id": "62771",
+        "phish_id": 62771,
         "phish_detail_page": "https://example.com/detail",
         "verified_at": "2006-10-01T02:28:46+00:00",
         **extra_fields,

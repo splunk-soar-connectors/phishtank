@@ -43,7 +43,7 @@ class UrlReputationOutput(PermissiveActionOutput):
         example_values=["http://www.testurl.com"],
     )
     valid: bool | None = OutputField(column_name="Valid", example_values=[False, True])
-    phish_id: str | None = OutputField(column_name="Phish ID", example_values=["62771"])
+    phish_id: int | None = OutputField(column_name="Phish ID", example_values=[62771])
     in_database: bool = OutputField(
         column_name="In Database", example_values=[False, True]
     )
@@ -86,9 +86,6 @@ def check_url(
     normalized_url = re.sub(r"\[\.\]|\(\.\)|\{\.\}", ".", normalized_url)
     logger.info("Querying URL: %s", normalized_url)
     result = query_url(asset, normalized_url)
-    # PhishTank can return an integer ID; the original manifest declares a string.
-    if result.get("phish_id") is not None:
-        result = {**result, "phish_id": str(result["phish_id"])}
     output = UrlReputationOutput(**result)
     soar.set_summary(
         UrlReputationSummary(
