@@ -31,10 +31,11 @@ connectivity = unwrap(connectivity)
 
 @pytest.fixture
 def response(monkeypatch):
-    response = Mock(status_code=200)
-    response.json.return_value = {
-        "results": {"url": "https://example.com", "in_database": False}
-    }
+    response = requests.Response()
+    response.status_code = 200
+    response.json = Mock(
+        return_value={"results": {"url": "https://example.com", "in_database": False}}
+    )
     monkeypatch.setattr(requests, "post", Mock(return_value=response))
     return response
 

@@ -43,7 +43,7 @@ def make_request(asset: "Asset", url: str):
 
 def check_connectivity(asset: "Asset") -> None:
     response = make_request(asset, "https://www.google.com")
-    if not 200 <= response.status_code < 399:
+    if not response.ok:
         raise ActionFailure(
             f"Connectivity test failed. Server returned error code: {response.status_code}. Please check your network connectivity"
         )
@@ -56,7 +56,7 @@ def query_url(asset: "Asset", url: str) -> dict:
         raise ActionFailure(
             f"Query is being rate limited. Server returned {response.status_code}"
         )
-    if not 200 <= response.status_code < 399:
+    if not response.ok:
         raise ActionFailure(f"Server returned error code: {response.status_code}")
     try:
         payload = response.json()
