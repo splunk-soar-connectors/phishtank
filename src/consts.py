@@ -12,7 +12,8 @@
 # and limitations under the License.
 #
 #
-API_URL = "https://checkurl.phishtank.com/checkurl/"
+API_BASE_URL = "https://checkurl.phishtank.com/"
+API_URL = f"{API_BASE_URL}checkurl/"
 DEFAULT_TIMEOUT = 30
 DEFAULT_USER_AGENT = "splunk_soar_user"
 SUCCESS_MESSAGE = "Phishtank Service successfully executed."

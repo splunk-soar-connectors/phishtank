@@ -63,7 +63,7 @@ def test_connectivity(soar: SOARClient, asset: Asset) -> None:
     soar.set_message("Connectivity test passed")
 
 
-from .actions import check_url  # noqa: F401
+from .actions import check_url, make_request  # noqa: F401
 
 if __name__ == "__main__":
     app.cli()
