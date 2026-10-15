@@ -4,7 +4,7 @@ Publisher: Splunk <br>
 Connector Version: 3.0.5 <br>
 Product Vendor: OpenDNS <br>
 Product Name: PhishTank <br>
-Minimum Product Version: 6.1.0
+Minimum Product Version: 7.0.0
 
 This app implements URL investigative capabilities utilizing PhishTank
 
@@ -34,15 +34,18 @@ VARIABLE | REQUIRED | TYPE | DESCRIPTION
 
 ### Supported Actions
 
-[test connectivity](#action-test-connectivity) - Validates the connectivity by querying PhishTank <br>
-[url reputation](#action-url-reputation) - Queries PhishTank for URL's phishing reputation
+[test connectivity](#action-test-connectivity) - Validates the connectivity by querying PhishTank. <br>
+[url reputation](#action-url-reputation) - Queries PhishTank for URL's phishing reputation <br>
+[make request](#action-make-request) - Makes a generic HTTP request to the PhishTank API
 
 ## action: 'test connectivity'
 
-Validates the connectivity by querying PhishTank
+Validates the connectivity by querying PhishTank.
 
 Type: **test** <br>
 Read only: **True**
+
+Basic test for app.
 
 #### Action Parameters
 
@@ -50,7 +53,12 @@ No parameters are required for this action
 
 #### Action Output
 
-No Output
+DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES
+--------- | ---- | -------- | --------------
+action_result.status | string | | success failure |
+action_result.message | string | | |
+summary.total_objects | numeric | | 1 |
+summary.total_objects_successful | numeric | | 1 |
 
 ## action: 'url reputation'
 
@@ -71,19 +79,58 @@ PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
 
 DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES
 --------- | ---- | -------- | --------------
-action_result.status | string | | success failed |
-action_result.parameter.url | string | `url` | http://www.testurl.com |
-action_result.data.\*.in_database | boolean | | False True |
-action_result.data.\*.phish_detail_page | string | `url` | http://www.exampleurl.com/test_detail.php?phish_id=62001 |
-action_result.data.\*.phish_id | string | | 62771 |
+action_result.status | string | | success failure |
+action_result.message | string | | |
+action_result.parameter.url | string | `url` | |
 action_result.data.\*.url | string | `url` | http://www.testurl.com |
-action_result.data.\*.valid | boolean | | False True |
-action_result.data.\*.verified | boolean | | False True |
+action_result.data.\*.valid | boolean | | True False |
+action_result.data.\*.phish_id | numeric | | 62771 |
+action_result.data.\*.in_database | boolean | | True False |
+action_result.data.\*.verified | boolean | | True False |
+action_result.data.\*.phish_detail_page | string | `url` | http://www.exampleurl.com/test_detail.php?phish_id=62001 |
 action_result.data.\*.verified_at | string | | 2006-09-01T02:32:23+00:00 |
-action_result.summary.In_Database | boolean | | False True |
-action_result.summary.Valid | boolean | | False True |
-action_result.summary.Verified | boolean | | False True |
-action_result.message | string | | In database: True, Verified: False, Valid: False |
+action_result.summary.In_Database | boolean | | True False |
+action_result.summary.Valid | boolean | | True False |
+action_result.summary.Verified | boolean | | True False |
+summary.total_objects | numeric | | 1 |
+summary.total_objects_successful | numeric | | 1 |
+
+## action: 'make request'
+
+Makes a generic HTTP request to the PhishTank API
+
+Type: **investigate** <br>
+Read only: **True**
+
+This action sends the selected HTTP method to a path on `https://checkurl.phishtank.com/`. For URL lookups, use `checkurl/` as the endpoint and provide a JSON body with `url` and `format`. The action form-encodes that body and adds the configured API key as `app_key` when present. Other endpoints receive a JSON request body. The configured User-Agent is sent by default, and the response status code and body are returned as-is.
+
+#### Action Parameters
+
+PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
+--------- | -------- | ----------- | ---- | --------
+**http_method** | required | The HTTP method to use for the request. | string | |
+**endpoint** | required | PhishTank API endpoint path, such as `checkurl/`. | string | |
+**headers** | optional | Headers to send with the request as a JSON object. | string | |
+**query_parameters** | optional | Query parameters as a JSON object or query string. | string | |
+**body** | optional | Request body as JSON. | string | |
+**timeout** | optional | Request timeout in seconds. Defaults to 30 seconds. | numeric | |
+**verify_ssl** | optional | Whether to verify the SSL certificate. Defaults to True. | boolean | |
+
+#### Action Output
+
+DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES
+--------- | ---- | -------- | --------------
+action_result.status | string | | success failure |
+action_result.message | string | | |
+action_result.parameter.http_method | string | | |
+action_result.parameter.endpoint | string | | |
+action_result.parameter.headers | string | | |
+action_result.parameter.query_parameters | string | | |
+action_result.parameter.body | string | | |
+action_result.parameter.timeout | numeric | | |
+action_result.parameter.verify_ssl | boolean | | |
+action_result.data.\*.status_code | numeric | | 200 |
+action_result.data.\*.response_body | string | | {} |
 summary.total_objects | numeric | | 1 |
 summary.total_objects_successful | numeric | | 1 |
 
