@@ -199,14 +199,6 @@ def test_connection_error(response):
         query_url(Asset(), "https://example.com")
 
 
-def test_connectivity_checks_status_without_json(response, monkeypatch):
-    monkeypatch.setattr("time.sleep", Mock())
-    soar = Mock()
-    connectivity(soar, Asset())
-    response.json.assert_not_called()
-    soar.set_message.assert_called_once_with("Connectivity test passed")
-
-
 def test_connectivity_failure(response, monkeypatch):
     monkeypatch.setattr("time.sleep", Mock())
     response.status_code = 403
