@@ -42,9 +42,7 @@ class PhishTankMakeRequestParams(MakeRequestParams):
 
 
 @app.make_request()
-def make_request(
-    params: PhishTankMakeRequestParams, asset: Asset
-) -> MakeRequestOutput:
+def make_request(params: PhishTankMakeRequestParams, asset: Asset) -> MakeRequestOutput:
     """Send a generic HTTP request to the configured PhishTank API host."""
     endpoint = params.endpoint.strip().lstrip("/")
     if not endpoint:
@@ -106,7 +104,6 @@ def make_request(
             "url": url,
             "headers": headers,
             "params": query_params,
-            "timeout": params.timeout or DEFAULT_TIMEOUT,
             "verify": params.verify_ssl if params.verify_ssl is not None else True,
         }
         if form_body:
@@ -115,6 +112,7 @@ def make_request(
             request_kwargs["json"] = body
         response = requests.request(
             **request_kwargs,
+            timeout=params.timeout or DEFAULT_TIMEOUT,
         )
     except requests.RequestException as exc:
         logger.exception("PhishTank make request failed")

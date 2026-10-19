@@ -36,7 +36,7 @@ VARIABLE | REQUIRED | TYPE | DESCRIPTION
 
 [test connectivity](#action-test-connectivity) - Validates the connectivity by querying PhishTank. <br>
 [url reputation](#action-url-reputation) - Queries PhishTank for URL's phishing reputation <br>
-[make request](#action-make-request) - Makes a generic HTTP request to the PhishTank API
+[make request](#action-make-request) - Send a generic HTTP request to the configured PhishTank API host.
 
 ## action: 'test connectivity'
 
@@ -97,24 +97,24 @@ summary.total_objects_successful | numeric | | 1 |
 
 ## action: 'make request'
 
-Makes a generic HTTP request to the PhishTank API
+Send a generic HTTP request to the configured PhishTank API host.
 
-Type: **investigate** <br>
-Read only: **True**
+Type: **generic** <br>
+Read only: **False**
 
-This action sends the selected HTTP method to a path on `https://checkurl.phishtank.com/`. For URL lookups, use `checkurl/` as the endpoint and provide a JSON body with `url` and `format`. The action form-encodes that body and adds the configured API key as `app_key` when present. Other endpoints receive a JSON request body. The configured User-Agent is sent by default, and the response status code and body are returned as-is.
+'make request' action for the app. Used to handle arbitrary HTTP requests with the app's asset
 
 #### Action Parameters
 
 PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
 --------- | -------- | ----------- | ---- | --------
 **http_method** | required | The HTTP method to use for the request. | string | |
-**endpoint** | required | PhishTank API endpoint path, such as `checkurl/`. | string | |
-**headers** | optional | Headers to send with the request as a JSON object. | string | |
-**query_parameters** | optional | Query parameters as a JSON object or query string. | string | |
-**body** | optional | Request body as JSON. | string | |
-**timeout** | optional | Request timeout in seconds. Defaults to 30 seconds. | numeric | |
-**verify_ssl** | optional | Whether to verify the SSL certificate. Defaults to True. | boolean | |
+**endpoint** | required | PhishTank API endpoint path. For URL lookups, use 'checkurl/'. The endpoint is appended to https://checkurl.phishtank.com/. | string | |
+**headers** | optional | The headers to send with the request (JSON object). An example is {'Content-Type': 'application/json'} | string | |
+**query_parameters** | optional | Parameters to append to the URL (JSON object or query string). An example is ?key=value&key2=value2 | string | |
+**body** | optional | The body to send with the request (JSON object). An example is {'key': 'value', 'key2': 'value2'} | string | |
+**timeout** | optional | The timeout for the request in seconds. | numeric | |
+**verify_ssl** | optional | Whether to verify the SSL certificate. Default is True. | boolean | |
 
 #### Action Output
 
@@ -129,8 +129,8 @@ action_result.parameter.query_parameters | string | | |
 action_result.parameter.body | string | | |
 action_result.parameter.timeout | numeric | | |
 action_result.parameter.verify_ssl | boolean | | |
-action_result.data.\*.status_code | numeric | | 200 |
-action_result.data.\*.response_body | string | | {} |
+action_result.data.\*.status_code | numeric | | 200 404 500 |
+action_result.data.\*.response_body | string | | {"key": "value"} |
 summary.total_objects | numeric | | 1 |
 summary.total_objects_successful | numeric | | 1 |
 
